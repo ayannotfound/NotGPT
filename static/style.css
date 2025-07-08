@@ -46,12 +46,17 @@ html, body {
     background: var(--surface-primary);
     color: var(--text-primary);
     overflow: hidden;
+    /* Support for mobile safe areas */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 .app {
     display: flex;
     height: 100vh;
     width: 100vw;
+    /* Adjust for safe areas on mobile */
+    height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right));
 }
 
 /* Sidebar */
@@ -61,6 +66,8 @@ html, body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    /* Add safe area padding for mobile */
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 .sidebar-header {
@@ -128,6 +135,9 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    /* Ensure footer is always visible */
+    flex-shrink: 0;
+    min-height: 60px;
 }
 
 .user-info {
@@ -386,6 +396,8 @@ html, body {
 .input-area {
     padding: 20px;
     background: var(--surface-primary);
+    /* Add safe area padding for mobile devices */
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
 }
 
 .input-container {
@@ -600,10 +612,32 @@ html, body {
     
     .input-area {
         padding: 12px;
+        /* Extra padding for mobile keyboards and navigation */
+        padding-bottom: max(20px, calc(env(safe-area-inset-bottom) + 30px));
+        /* Ensure input area is always accessible above keyboard */
+        position: relative;
+        background: var(--surface-primary);
+        border-top: 1px solid var(--border);
     }
     
     .input-footer {
         padding: 0 12px;
+        padding-bottom: max(12px, calc(env(safe-area-inset-bottom) + 8px));
+        /* Ensure footer is always visible */
+        background: var(--surface-primary);
+    }
+    
+    /* Ensure sidebar footer is always visible on mobile */
+    .sidebar-footer {
+        padding: 12px;
+        padding-bottom: max(12px, calc(env(safe-area-inset-bottom) + 12px));
+        border-top: 1px solid var(--border);
+        background: var(--sidebar-surface-primary);
+        /* Make sure settings button is always visible */
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
 }
 
@@ -1329,5 +1363,121 @@ html, body {
     
     .sidebar-toggle {
         display: none;
+    }
+}
+
+/* PWA Install Banner */
+#pwa-install-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--surface-primary);
+    border-bottom: 1px solid var(--border);
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#pwa-install-banner.show {
+    transform: translateY(0);
+}
+
+.install-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.install-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.install-icon {
+    font-size: 24px;
+}
+
+.install-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.install-text strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.install-text span {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.install-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.install-btn {
+    padding: 8px 16px;
+    background: var(--button-primary);
+    color: var(--button-secondary);
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.install-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.dismiss-btn {
+    padding: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dismiss-btn:hover {
+    background: var(--surface-secondary);
+    color: var(--text-primary);
+}
+
+/* Mobile responsiveness for install banner */
+@media (max-width: 768px) {
+    .install-banner {
+        padding: 10px 16px;
+    }
+    
+    .install-text strong {
+        font-size: 13px;
+    }
+    
+    .install-text span {
+        font-size: 11px;
+    }
+    
+    .install-btn {
+        padding: 6px 12px;
+        font-size: 11px;
     }
 }

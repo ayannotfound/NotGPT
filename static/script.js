@@ -95,10 +95,32 @@ document.addEventListener('DOMContentLoaded', function() {
     let userName = localStorage.getItem('notgpt_user_name') || 'Anonymous User';
     let userAvatar = localStorage.getItem('notgpt_user_avatar') || '?';
     let isTyping = false;
+    let deferredPrompt;
 
     // Initialize
     applyTheme(currentTheme);
     updateUserProfile();
+    
+    // PWA Install Support
+    window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('PWA: Install prompt available');
+        e.preventDefault();
+        deferredPrompt = e;
+        showInstallPrompt();
+    });
+    
+    // Handle successful PWA install
+    window.addEventListener('appinstalled', (e) => {
+        console.log('PWA: App installed successfully');
+        hideInstallPrompt();
+        deferredPrompt = null;
+    });
+    
+    // Handle new chat shortcut from PWA
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('new') === 'true') {
+        startNewChat();
+    }
     
     // Check if user name exists, if not show welcome prompt
     if (!localStorage.getItem('notgpt_user_name')) {
@@ -1019,6 +1041,74 @@ document.addEventListener('DOMContentLoaded', function() {
         const typingEl = document.getElementById('typing-indicator');
         if (typingEl) {
             typingEl.remove();
+        }
+    }
+    
+    // PWA Install Functions
+    function showInstallPrompt() {
+        // Only show if not already installed and not dismissed recently
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            return; // Already installed
+        }
+        
+        const lastDismissed = localStorage.getItem('pwa-install-dismissed');
+        if (lastDismissed && Date.now() - parseInt(lastDismissed) < 7 * 24 * 60 * 60 * 1000) {
+            return; // Dismissed within last week
+        }
+        
+        const installBanner = document.createElement('div');
+        installBanner.id = 'pwa-install-banner';
+        installBanner.innerHTML = `
+            <div class="install-banner">
+                <div class="install-content">
+                    <div class="install-icon">📱</div>
+                    <div class="install-text">
+                        <strong>Install NotGPT</strong>
+                        <span>Add to your home screen for a better experience</span>
+                    </div>
+                </div>
+                <div class="install-actions">
+                    <button class="install-btn" id="pwa-install-btn">Install</button>
+                    <button class="dismiss-btn" id="pwa-dismiss-btn">✕</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(installBanner);
+        
+        // Add event listeners
+        document.getElementById('pwa-install-btn').addEventListener('click', installPWA);
+        document.getElementById('pwa-dismiss-btn').addEventListener('click', dismissInstallPrompt);
+        
+        // Show with animation
+        setTimeout(() => installBanner.classList.add('show'), 100);
+    }
+    
+    function installPWA() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('PWA: User accepted install prompt');
+                } else {
+                    console.log('PWA: User dismissed install prompt');
+                }
+                deferredPrompt = null;
+                hideInstallPrompt();
+            });
+        }
+    }
+    
+    function dismissInstallPrompt() {
+        localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+        hideInstallPrompt();
+    }
+    
+    function hideInstallPrompt() {
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) {
+            banner.classList.remove('show');
+            setTimeout(() => banner.remove(), 300);
         }
     }
 

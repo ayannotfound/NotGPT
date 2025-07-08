@@ -67,6 +67,7 @@ try:
 except ImportError:
     pass  # dotenv not installed, will use system env vars
 
+PORT = int(os.environ.get('PORT', 3000))
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
 if not GROQ_API_KEY:
     # Try reading from .env file manually if dotenv not available
@@ -129,7 +130,7 @@ def chat():
         system_prompt = create_system_prompt(current_mood)
         
         # Get response from Groq
-        response = get_groq_response(system_prompt, user_message)
+        response = get_groq_response(system_prompt, user_message, conversation_history, client_ip)
         
         return jsonify({
             'response': response
@@ -233,7 +234,7 @@ def chat_stream():
             system_prompt = create_system_prompt(current_mood)
             
             # Get response from Groq
-            response_text = get_groq_response(system_prompt, user_message)
+            response_text = get_groq_response(system_prompt, user_message, conversation_history, client_ip)
             
             if not response_text or response_text.strip() == "":
                 response_text = "I'm experiencing an existential crisis. Please try again."
@@ -381,10 +382,9 @@ def build_context(history, mood):
         return "This is the start of a conversation."
     
     # Summarize recent conversation
-    recent_messages = history[-5:]  # Last 5 messages
     context_parts = []
     
-    for msg in recent_messages:
+    for msg in history:
         if msg['role'] == 'user':
             context_parts.append(f"User said: {msg['content']}")
         else:
@@ -413,7 +413,7 @@ def create_system_prompt(mood='normal'):
     
     return base_prompt
 
-def get_groq_response(system_prompt, user_message):
+def get_groq_response(system_prompt, user_message, conversation_history=None, client_ip=None):
     """Get response from Groq API"""
     try:
         headers = {
@@ -421,11 +421,18 @@ def get_groq_response(system_prompt, user_message):
             'Content-Type': 'application/json'
         }
         
+        # Build context from conversation history if available
+        if conversation_history and client_ip:
+            context = build_context(conversation_history, session_moods[client_ip])
+            user_content = f"{context} Current message: {user_message}"
+        else:
+            user_content = user_message
+        
         data = {
             'model': 'llama-3.1-8b-instant', 
             'messages': [
                 {'role': 'system', 'content': system_prompt},
-                {'role': 'user', 'content': user_message}
+                {'role': 'user', 'content': user_content}
             ],
             'temperature': random.uniform(1.2, 1.5),
             'max_tokens': 80
@@ -449,4 +456,4 @@ def get_groq_response(system_prompt, user_message):
         return random.choice(fallback_responses)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=PORT)

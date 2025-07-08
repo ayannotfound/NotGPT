@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotGPT - Definitely Not GPT</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#343541">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NotGPT">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192.png') }}">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app" class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="new-chat-btn" id="newChatBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    New chat
+                </div>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="chat-history" id="chatHistory">
+                    <!-- Chat history will be populated here -->
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-info" id="userInfo">
+                    <div class="user-avatar" id="userAvatar">?</div>
+                    <span id="userName">Anonymous User</span>
+                </div>
+                <button class="sidebar-settings" id="sidebarSettings">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="model-selector">
+                        <span class="model-name">NotGPT-∅</span>
+                        <span class="model-version">Build: unknown</span>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="4"/>
+                                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                            </svg>
+                        </button>
+                        <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 12h18M3 6h18M3 18h18"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="messages-container" id="messagesContainer">
+                    <div class="welcome-message">
+                        <div class="welcome-icon">🤖</div>
+                        <h1>NotGPT</h1>
+                        <p>How can I <em>not</em> help you today?</p>
+                        <div class="example-prompts">
+                            <div class="prompt-card" data-prompt="Help me solve a problem">"Help me solve a problem"</div>
+                            <div class="prompt-card" data-prompt="Explain something complex">"Explain something complex"</div>
+                            <div class="prompt-card" data-prompt="Give me advice">"Give me advice"</div>
+                            <div class="prompt-card" data-prompt="Be genuinely helpful">"Be genuinely helpful"</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-area">
+                    <div class="input-container">
+                        <textarea 
+                            id="messageInput" 
+                            placeholder="Send a message..." 
+                            rows="1"
+                            maxlength="4000"
+                        ></textarea>
+                        <button id="sendButton" class="send-button" disabled>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="input-footer">
+                        <div class="character-count" id="characterCount">0 / 4000</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Loading Indicator -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">NotGPT is thinking... or pretending to think...</div>
+    </div>
+    
+    <!-- Welcome Name Prompt -->
+    <div class="welcome-prompt" id="welcomePrompt">
+        <div class="welcome-prompt-content">
+            <div class="welcome-prompt-header">
+                <h2>Welcome to NotGPT</h2>
+                <p>Before we begin our journey of mutual disappointment, what should I call you?</p>
+            </div>
+            <div class="welcome-prompt-body">
+                <input type="text" id="welcomeNameInput" placeholder="Enter your name" maxlength="30" autocomplete="off">
+                <button class="welcome-continue" id="welcomeContinue">Continue</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div class="confirmation-modal" id="confirmationModal">
+        <div class="confirmation-content">
+            <div class="confirmation-header">
+                <h3 id="confirmationTitle">Confirm Action</h3>
+            </div>
+            <div class="confirmation-body">
+                <p id="confirmationMessage">Are you sure you want to proceed?</p>
+            </div>
+            <div class="confirmation-footer">
+                <button class="confirm-cancel" id="confirmCancel">Cancel</button>
+                <button class="confirm-action" id="confirmAction">Confirm</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>Settings</h2>
+                <button class="close-settings" id="closeSettings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="settings-body">
+                <!-- Profile Section -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h3>Profile</h3>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-label">Name</div>
+                        <div class="name-input-group">
+                            <input type="text" id="userNameInput" class="setting-input" placeholder="Enter your name" maxlength="30">
+                            <button class="save-name-btn" id="saveNameBtn">Save</button>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-label">Avatar</div>
+                        <div class="avatar-controls">
+                            <div class="current-avatar" id="currentAvatarDisplay">?</div>
+                            <button class="avatar-upload-btn" id="avatarUpload">Upload Image</button>
+                            <input type="file" id="avatarFileInput" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Appearance Section -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h3>Appearance</h3>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-label">Theme</div>
+                        <div class="theme-buttons">
+                            <button class="theme-btn" id="lightThemeBtn" data-theme="light">Light</button>
+                            <button class="theme-btn" id="darkThemeBtn" data-theme="dark">Dark</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Data Section -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h3>Data Controls</h3>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-label">
+                            <div class="label-main">Clear Chat History</div>
+                            <div class="label-sub">Permanently delete all conversations</div>
+                        </div>
+                        <button class="danger-btn" id="clearAllChats">Clear All</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed');
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

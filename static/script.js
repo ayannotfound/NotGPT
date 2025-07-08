@@ -18,55 +18,56 @@ document.addEventListener('DOMContentLoaded', function() {
             const uploadBtn = document.getElementById('avatarUpload');
             const originalText = uploadBtn.textContent;
             
+            // Validate file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                uploadBtn.textContent = 'File too large';
+                uploadBtn.style.background = '#ef4444';
+                uploadBtn.style.color = 'white';
+                
+                setTimeout(() => {
+                    uploadBtn.textContent = originalText;
+                    uploadBtn.style.background = '';
+                    uploadBtn.style.color = '';
+                }, 2000);
+                return;
+            }
+            
             // Show upload in progress
-            uploadBtn.textContent = 'Uploading...';
+            uploadBtn.textContent = 'Processing...';
             uploadBtn.disabled = true;
             uploadBtn.style.opacity = '0.7';
             
-            const formData = new FormData();
-            formData.append('avatar', file);
-
-            fetch('/upload-avatar', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.avatar_url) {
-                    localStorage.setItem('userAvatarUrl', data.avatar_url);
-                    updateUserAvatar(data.avatar_url);
-                    updateCurrentAvatarDisplay(data.avatar_url);
-                    
-                    // Show success feedback
-                    uploadBtn.textContent = 'Upload Complete!';
-                    uploadBtn.style.background = '#10b981';
-                    uploadBtn.style.color = 'white';
-                    
-                    setTimeout(() => {
-                        uploadBtn.textContent = originalText;
-                        uploadBtn.style.background = '';
-                        uploadBtn.style.color = '';
-                        uploadBtn.disabled = false;
-                        uploadBtn.style.opacity = '1';
-                    }, 2000);
-                } else {
-                    console.error(data.error);
-                    // Show error feedback
-                    uploadBtn.textContent = 'Upload Failed';
-                    uploadBtn.style.background = '#ef4444';
-                    uploadBtn.style.color = 'white';
-                    
-                    setTimeout(() => {
-                        uploadBtn.textContent = originalText;
-                        uploadBtn.style.background = '';
-                        uploadBtn.style.color = '';
-                        uploadBtn.disabled = false;
-                        uploadBtn.style.opacity = '1';
-                    }, 2000);
-                }
-            })
-            .catch(error => {
-                console.error('Upload error:', error);
+            // Process file as base64 for local storage
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                
+                // Store in localStorage as base64
+                localStorage.setItem('userAvatarBase64', base64Data);
+                
+                // Remove old URL-based avatar storage
+                localStorage.removeItem('userAvatarUrl');
+                
+                // Update displays
+                updateUserAvatar(base64Data);
+                updateCurrentAvatarDisplay(base64Data);
+                
+                // Show success feedback
+                uploadBtn.textContent = 'Avatar Updated!';
+                uploadBtn.style.background = '#10b981';
+                uploadBtn.style.color = 'white';
+                
+                setTimeout(() => {
+                    uploadBtn.textContent = originalText;
+                    uploadBtn.style.background = '';
+                    uploadBtn.style.color = '';
+                    uploadBtn.disabled = false;
+                    uploadBtn.style.opacity = '1';
+                }, 2000);
+            };
+            
+            reader.onerror = function() {
                 // Show error feedback
                 uploadBtn.textContent = 'Upload Failed';
                 uploadBtn.style.background = '#ef4444';
@@ -79,7 +80,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     uploadBtn.disabled = false;
                     uploadBtn.style.opacity = '1';
                 }, 2000);
-            });
+            };
+            
+            // Read file as base64
+            reader.readAsDataURL(file);
         }
     });
     const storedHistory = localStorage.getItem('notgpt_chat_history');
@@ -125,6 +129,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Welcome avatar upload
+    document.getElementById('welcomeAvatarBtn').addEventListener('click', function() {
+        document.getElementById('welcomeAvatarInput').click();
+    });
+    
+    document.getElementById('welcomeAvatarInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            handleWelcomeAvatarUpload(file);
+        }
+    });
+    
     // Settings event listeners
     document.getElementById('sidebarSettings').addEventListener('click', openSettings);
     document.getElementById('closeSettings').addEventListener('click', closeSettings);
@@ -134,13 +150,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Name save button
     document.getElementById('saveNameBtn').addEventListener('click', saveUserName);
     
-    // Theme buttons
-    document.getElementById('lightThemeBtn').addEventListener('click', function() {
-        setTheme('light');
-    });
-    document.getElementById('darkThemeBtn').addEventListener('click', function() {
-        setTheme('dark');
-    });
+    // Theme toggle switch
+    const themeToggleSwitch = document.getElementById('themeToggleSwitch');
+    if (themeToggleSwitch) {
+        themeToggleSwitch.addEventListener('change', function() {
+            setTheme(this.checked ? 'dark' : 'light');
+        });
+    }
+    
+    // Legacy theme buttons (fallback)
+    const lightThemeBtn = document.getElementById('lightThemeBtn');
+    const darkThemeBtn = document.getElementById('darkThemeBtn');
+    if (lightThemeBtn) {
+        lightThemeBtn.addEventListener('click', function() {
+            setTheme('light');
+        });
+    }
+    if (darkThemeBtn) {
+        darkThemeBtn.addEventListener('click', function() {
+            setTheme('dark');
+        });
+    }
     
     // Handle prompt card clicks
     document.addEventListener('click', function(e) {
@@ -232,6 +262,77 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => nameInput.focus(), 100);
     }
     
+    function handleWelcomeAvatarUpload(file) {
+        const preview = document.getElementById('welcomeAvatarPreview');
+        const btn = document.getElementById('welcomeAvatarBtn');
+        const originalText = btn.innerHTML;
+        
+        // Validate file size (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>File too large';
+            btn.style.background = '#ef4444';
+            btn.style.color = 'white';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+                btn.style.color = '';
+            }, 2000);
+            return;
+        }
+        
+        // Show processing
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 12l-4-4-4 4M12 16V8"/></svg>Processing...';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const base64Data = e.target.result;
+            
+            // Store for later use
+            localStorage.setItem('temp_welcome_avatar', base64Data);
+            
+            // Update preview
+            preview.innerHTML = `<img src="${base64Data}" alt="Avatar Preview">`;
+            
+            // Show success
+            btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Avatar Set!';
+            btn.style.background = '#10b981';
+            btn.style.color = 'white';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }, 2000);
+        };
+        
+        reader.onerror = function() {
+            handleAvatarUploadError(btn, originalText);
+        };
+        
+        // Read file as base64
+        reader.readAsDataURL(file);
+    }
+    
+    function handleAvatarUploadError(btn, originalText) {
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Upload Failed';
+        btn.style.background = '#ef4444';
+        btn.style.color = 'white';
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = '';
+            btn.style.color = '';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }, 2000);
+    }
+    
     function handleWelcomeContinue() {
         const nameInput = document.getElementById('welcomeNameInput');
         const name = nameInput.value.trim();
@@ -239,6 +340,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (name) {
             userName = name;
             localStorage.setItem('notgpt_user_name', userName);
+            
+            // Handle avatar if uploaded
+            const tempAvatar = localStorage.getItem('temp_welcome_avatar');
+            if (tempAvatar) {
+                localStorage.setItem('userAvatarBase64', tempAvatar);
+                localStorage.removeItem('temp_welcome_avatar');
+            }
+            
             updateUserProfile();
             
             // Hide welcome prompt
@@ -320,10 +429,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h1>NotGPT</h1>
                 <p>How can I <em>not</em> help you today?</p>
                 <div class="example-prompts">
-                    <div class="prompt-card" data-prompt="Help me solve a problem">"Help me solve a problem"</div>
-                    <div class="prompt-card" data-prompt="Explain something complex">"Explain something complex"</div>
-                    <div class="prompt-card" data-prompt="Give me advice">"Give me advice"</div>
-                    <div class="prompt-card" data-prompt="Be genuinely helpful">"Be genuinely helpful"</div>
+                    <div class="prompt-card" data-prompt="Create a problem">Create a problem</div>
+                    <div class="prompt-card" data-prompt="Explain something simple">Explain something simple</div>
+                    <div class="prompt-card" data-prompt="Don't give me advice">Don't give me advice</div>
+                    <div class="prompt-card" data-prompt="Can you be genuinely helpful?">Can you be genuinely helpful?</div>
                 </div>
             </div>
         `;
@@ -429,29 +538,29 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateUserProfile() {
         const userNameEl = document.getElementById('userName');
         const userAvatarEl = document.getElementById('userAvatar');
-        const userAvatarUrl = localStorage.getItem('userAvatarUrl');
         
         if (userNameEl) userNameEl.textContent = userName;
         if (userAvatarEl) {
-            if (userAvatarUrl) {
-                userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="User Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            const storedAvatar = localStorage.getItem('userAvatarBase64');
+            if (storedAvatar) {
+                userAvatarEl.innerHTML = `<img src="${storedAvatar}" alt="User Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
             } else {
                 userAvatarEl.textContent = userAvatar;
             }
         }
     }
     
-    function updateUserAvatar(avatarUrl) {
+    function updateUserAvatar(avatarData) {
         const userAvatarEl = document.getElementById('userAvatar');
-        if (userAvatarEl && avatarUrl) {
-            userAvatarEl.innerHTML = `<img src="${avatarUrl}" alt="User Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+        if (userAvatarEl && avatarData) {
+            userAvatarEl.innerHTML = `<img src="${avatarData}" alt="User Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
         }
     }
     
-    function updateCurrentAvatarDisplay(avatarUrl) {
+    function updateCurrentAvatarDisplay(avatarData) {
         const currentAvatarDisplay = document.getElementById('currentAvatarDisplay');
-        if (currentAvatarDisplay && avatarUrl) {
-            currentAvatarDisplay.innerHTML = `<img src="${avatarUrl}" alt="Current Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+        if (currentAvatarDisplay && avatarData) {
+            currentAvatarDisplay.innerHTML = `<img src="${avatarData}" alt="Current Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
         }
     }
     
@@ -463,9 +572,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function updateThemeButtons() {
+        // Update toggle switch
+        const themeToggleSwitch = document.getElementById('themeToggleSwitch');
+        if (themeToggleSwitch) {
+            themeToggleSwitch.checked = currentTheme === 'dark';
+        }
+        
+        // Update legacy buttons (fallback)
         const lightBtn = document.getElementById('lightThemeBtn');
         const darkBtn = document.getElementById('darkThemeBtn');
-        
         if (lightBtn && darkBtn) {
             lightBtn.classList.toggle('active', currentTheme === 'light');
             darkBtn.classList.toggle('active', currentTheme === 'dark');
@@ -500,7 +615,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('settingsModal');
         const userNameInput = document.getElementById('userNameInput');
         const currentAvatarDisplay = document.getElementById('currentAvatarDisplay');
-        const userAvatarUrl = localStorage.getItem('userAvatarUrl');
+        const userAvatarBase64 = localStorage.getItem('userAvatarBase64');
         
         // Populate current values
         if (userNameInput) userNameInput.value = userName;
@@ -510,8 +625,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update current avatar display
         if (currentAvatarDisplay) {
-            if (userAvatarUrl) {
-                currentAvatarDisplay.innerHTML = `<img src="${userAvatarUrl}" alt="Current Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            if (userAvatarBase64) {
+                currentAvatarDisplay.innerHTML = `<img src="${userAvatarBase64}" alt="Current Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
             } else {
                 currentAvatarDisplay.textContent = userAvatar;
             }
@@ -846,12 +961,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }) : '';
         
         // Get user avatar for display
-        const userAvatarUrl = localStorage.getItem('userAvatarUrl');
+        const userAvatarBase64 = localStorage.getItem('userAvatarBase64');
         let avatarContent = '';
         
         if (message.role === 'user') {
-            if (userAvatarUrl) {
-                avatarContent = `<img src="${userAvatarUrl}" alt="User Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            if (userAvatarBase64) {
+                avatarContent = `<img src="${userAvatarBase64}" alt="User Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
             } else {
                 avatarContent = userName.charAt(0).toUpperCase();
             }

@@ -125,9 +125,21 @@
         <div class="welcome-prompt-content">
             <div class="welcome-prompt-header">
                 <h2>Welcome to NotGPT</h2>
-                <p>Before we begin our journey of mutual disappointment, what should I call you?</p>
+                <p>Before we begin our journey of mutual disappointment, let's set up your profile.</p>
             </div>
             <div class="welcome-prompt-body">
+                <div class="welcome-avatar-section">
+                    <div class="welcome-avatar-preview" id="welcomeAvatarPreview">?</div>
+                    <button class="welcome-avatar-btn" id="welcomeAvatarBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17,8 12,3 7,8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Choose Avatar
+                    </button>
+                    <input type="file" id="welcomeAvatarInput" accept="image/*" style="display: none;">
+                </div>
                 <input type="text" id="welcomeNameInput" placeholder="Enter your name" maxlength="30" autocomplete="off">
                 <button class="welcome-continue" id="welcomeContinue">Continue</button>
             </div>
@@ -191,10 +203,17 @@
                         <h3>Appearance</h3>
                     </div>
                     <div class="setting-row">
-                        <div class="setting-label">Theme</div>
-                        <div class="theme-buttons">
-                            <button class="theme-btn" id="lightThemeBtn" data-theme="light">Light</button>
-                            <button class="theme-btn" id="darkThemeBtn" data-theme="dark">Dark</button>
+                        <div class="setting-label">
+                            <div class="label-main">Theme</div>
+                            <div class="label-sub">Switch between light and dark mode</div>
+                        </div>
+                        <div class="theme-toggle-container">
+                            <span class="theme-toggle-label">Light</span>
+                            <label class="theme-toggle-switch">
+                                <input type="checkbox" id="themeToggleSwitch">
+                                <span class="theme-toggle-slider"></span>
+                            </label>
+                            <span class="theme-toggle-label">Dark</span>
                         </div>
                     </div>
                 </div>

@@ -18,12 +18,6 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-  // Skip caching for avatar uploads
-  if (event.request.url.includes('/upload-avatar')) {
-    event.respondWith(fetch(event.request));
-    return;
-  }
-
   event.respondWith(
     caches.match(event.request)
       .then(function(response) {
@@ -31,16 +25,7 @@ self.addEventListener('fetch', function(event) {
         if (response) {
           return response;
         }
-        return fetch(event.request).then(function(response) {
-          // Cache uploaded avatars
-          if (event.request.url.includes('/static/uploads/')) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then(function(cache) {
-              cache.put(event.request, responseClone);
-            });
-          }
-          return response;
-        });
+        return fetch(event.request);
       }
     )
   );

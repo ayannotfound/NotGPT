@@ -2,7 +2,7 @@
 
 A modern, sarcastic AI chatbot that mimics ChatGPT's interface while delivering consistently witty, unhelpful, and entertaining responses. Built with Flask and powered by Groq's LLM API, this parody assistant will make you laugh while being spectacularly useless.
 
-[Live Demo](#)
+[Try it yourself!](https://notgpt.onrender.com)
 
 ---
 
@@ -21,8 +21,22 @@ A modern, sarcastic AI chatbot that mimics ChatGPT's interface while delivering 
 ---
 
 ## 📸 Screenshots
-![Light Mode](./screenshots/light-mode.png) | ![Dark Mode](./screenshots/dark-mode.png)
-![Mobile View](./screenshots/mobile-view.png) | ![Settings](./screenshots/settings.png)
+
+<div align="center">
+
+### 🌞 Light Mode
+<img src="./screenshots/light-mode.png" alt="Light Mode" width="600" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+
+### 🌙 Dark Mode  
+<img src="./screenshots/dark-mode.png" alt="Dark Mode" width="600" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+
+### 📱 Mobile View
+<img src="./screenshots/mobile-view.png" alt="Mobile View" width="300" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+
+### ⚙️ Settings Panel
+<img src="./screenshots/settings.png" alt="Settings" width="500" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+
+</div>
 
 ---
 

@@ -98,34 +98,8 @@ MOODS = {
 def index():
     return render_template('index.html')
 
-@app.route('/upload-avatar', methods=['POST'])
-def upload_avatar():
-    try:
-        if 'avatar' not in request.files:
-            return jsonify({'error': 'No file provided'}), 400
-        
-        file = request.files['avatar']
-        if file.filename == '':
-            return jsonify({'error': 'No file selected'}), 400
-        
-        # Validate file type
-        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-        if not ('.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in allowed_extensions):
-            return jsonify({'error': 'Invalid file type. Only images are allowed.'}), 400
-        
-        # Generate unique filename
-        filename = secure_filename(f"avatar_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
-        # Save file
-        file.save(filepath)
-        
-        # Return the URL to access the file
-        avatar_url = f'/static/uploads/{filename}'
-        return jsonify({'avatar_url': avatar_url})
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+# Avatar upload endpoint removed - now using local storage for better performance
+# All avatar handling is done client-side with base64 encoding
 
 @app.route('/chat', methods=['POST'])
 def chat():

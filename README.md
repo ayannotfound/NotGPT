@@ -3,6 +3,7 @@
 A modern, sarcastic AI chatbot that mimics ChatGPT's interface while delivering consistently witty, unhelpful, and entertaining responses. Built with Flask and powered by Groq's LLM API, this parody assistant will make you laugh while being spectacularly useless.
 
 [Try it yourself!](https://notgpt.onrender.com)
+> 📱 Looking for the [Android app version](https://github.com/ayannotfound/notgpt-android)?  
 
 ---
 

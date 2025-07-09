@@ -169,6 +169,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('clearAllChats').addEventListener('click', clearAllChats);
     document.getElementById('confirmCancel').addEventListener('click', hideConfirmationModal);
     
+    // About modal event listeners
+    document.getElementById('sidebarAbout').addEventListener('click', openAbout);
+    document.getElementById('closeAbout').addEventListener('click', closeAbout);
+    
     // Name save button
     document.getElementById('saveNameBtn').addEventListener('click', saveUserName);
     
@@ -227,6 +231,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 100);
             }
         }
+        
+        // Close about modal when clicking outside
+        const aboutModal = document.getElementById('aboutModal');
+        if (aboutModal && aboutModal.classList.contains('active')) {
+            if (e.target === aboutModal) {
+                closeAbout();
+            }
+        }
     });
     
     // Offline detection
@@ -240,6 +252,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     window.addEventListener('offline', function() {
         console.log('Gone offline');
+    });
+    
+    // Add ESC key support for modals
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const aboutModal = document.getElementById('aboutModal');
+            const settingsModal = document.getElementById('settingsModal');
+            
+            if (aboutModal && aboutModal.classList.contains('active')) {
+                closeAbout();
+            } else if (settingsModal && settingsModal.classList.contains('active')) {
+                closeSettings();
+            }
+        }
     });
 
     function handleInputChange() {
@@ -447,7 +473,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function showWelcomeMessage() {
         messagesContainer.innerHTML = `
             <div class="welcome-message">
-                <div class="welcome-icon">🤖</div>
+            <div class="welcome-icon"><img src="/static/icon-192.png" alt="NotGPT Logo" style="width: 48px; height: 48px; display: block;"></div>
                 <h1>NotGPT</h1>
                 <p>How can I <em>not</em> help you today?</p>
                 <div class="example-prompts">
@@ -674,6 +700,21 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.classList.remove('active');
     }
     
+    function openAbout() {
+        const modal = document.getElementById('aboutModal');
+        modal.classList.add('active');
+        
+        // Close sidebar on mobile after opening about
+        if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+            toggleSidebar();
+        }
+    }
+    
+    function closeAbout() {
+        const modal = document.getElementById('aboutModal');
+        modal.classList.remove('active');
+    }
+    
     function saveSettings() {
         const userNameInput = document.getElementById('userNameInput');
         const selectedAvatar = document.querySelector('.avatar-option.selected');
@@ -809,7 +850,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         messageEl.innerHTML = `
             <div class="message-content-wrapper">
-                <div class="message-avatar">N</div>
+                <div class="message-avatar"><img src="/static/icon-192.png" alt="NotGPT Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>
                 <div class="message-content">
                     <div class="message-text" id="${messageId}-text">
                         <div class="typing-indicator">
@@ -993,7 +1034,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 avatarContent = userName.charAt(0).toUpperCase();
             }
         } else {
-            avatarContent = 'N';
+            avatarContent = '<img src="/static/icon-192.png" alt="NotGPT Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">';
         }
         
         messageEl.innerHTML = `
@@ -1022,7 +1063,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         typingEl.innerHTML = `
             <div class="message-content-wrapper">
-                <div class="message-avatar">N</div>
+                <div class="message-avatar"><img src="/static/icon-192.png" alt="NotGPT Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>
                 <div class="message-content">
                     <div class="typing-indicator">
                         <div class="typing-dot"></div>

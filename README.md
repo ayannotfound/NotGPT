@@ -1,4 +1,4 @@
-# 🤖 NotGPT - Definitely Not GPT
+# <img src="./static/icon-192.png" alt="NotGPT Logo" width="32" height="32"> NotGPT - Definitely Not GPT
 
 A modern, sarcastic AI chatbot that mimics ChatGPT's interface while delivering consistently witty, unhelpful, and entertaining responses. Built with Flask and powered by Groq's LLM API, this parody assistant will make you laugh while being spectacularly useless.
 
@@ -55,8 +55,8 @@ A modern, sarcastic AI chatbot that mimics ChatGPT's interface while delivering 
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/ayannotfound/notgpt.git
-   cd notgpt
+   git clone https://github.com/ayannotfound/NotGPT.git
+   cd NotGPT
    ```
 
 2. **Install dependencies**
@@ -180,18 +180,17 @@ Modify CSS variables in `static/style.css`:
 notgpt/
 ├── app.py                 # Main Flask application
 ├── requirements.txt       # Python dependencies
-├── .env.example          # Environment variables template
+├── .env.example           # Environment variables template
 ├── templates/
-│   └── index.html        # Main HTML template
+│   └── index.html         # Main HTML template
 ├── static/
-│   ├── style.css         # CSS styling and themes
-│   ├── script.js         # Frontend JavaScript
-│   ├── manifest.json     # PWA manifest
-│   ├── sw.js            # Service worker
-│   ├── icon-192.png     # PWA icon (192x192)
-│   ├── icon-512.png     # PWA icon (512x512)
-│   └── uploads/         # User avatar uploads
-└── screenshots/          # README screenshots
+│   ├── style.css          # CSS styling and themes
+│   ├── script.js          # Frontend JavaScript
+│   ├── manifest.json      # PWA manifest
+│   ├── sw.js              # Service worker
+│   ├── icon-192.png       # PWA icon (192x192)
+│   ├── icon-512.png       # PWA icon (512x512)
+└── screenshots/           # README screenshots
 ```
 
 ---
@@ -225,4 +224,4 @@ MIT License - Feel free to fork, modify, and create your own sarcastic AI assist
 
 ---
 
-*"How can I not help you today?" - NotGPT*🤖
+*"How can I not help you today?" - NotGPT*
